@@ -1,0 +1,33 @@
+2025-10-06 22:47:44,669 [Worker-8: Loading available Gradle versions] INFO  o.e.b.c.i.u.g.PublishedGradleVersions - Gradle version information cache is up-to-date. Trying to read.
+2025-10-06 22:50:10,358 [Worker-3: Import Getting Started Content] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.project:PAYROLL_MANAGEMENT_SYSTEM:0.0.1-SNAPSHOT @ D:\JAVA_TRAINING\CAPSTONE_PROJECT\PAYROLL_MANAGEMENT_SYSTEM\pom.xml.
+2025-10-06 22:50:11,823 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /PAYROLL_MANAGEMENT_SYSTEM/src/main/java
+2025-10-06 22:50:11,825 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /PAYROLL_MANAGEMENT_SYSTEM/src/main/resources
+2025-10-06 22:50:11,874 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /PAYROLL_MANAGEMENT_SYSTEM/src/main/resources
+2025-10-06 22:50:11,878 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /PAYROLL_MANAGEMENT_SYSTEM/src/test/java
+2025-10-06 22:50:11,879 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /PAYROLL_MANAGEMENT_SYSTEM/src/test/resources
+2025-10-06 22:50:12,593 [Worker-3: Import Getting Started Content] INFO  o.e.m.c.i.p.ProjectConfigurationManager - Imported and configured 1 project(s) in 4 sec
+2025-10-06 22:50:12,597 [Worker-3: Import Getting Started Content] INFO  o.e.m.c.i.p.ProjectConfigurationManager - Update started
+2025-10-06 22:50:12,993 [Worker-3: Import Getting Started Content] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.project:PAYROLL_MANAGEMENT_SYSTEM:0.0.1-SNAPSHOT @ D:\JAVA_TRAINING\CAPSTONE_PROJECT\PAYROLL_MANAGEMENT_SYSTEM\pom.xml.
+2025-10-06 22:50:13,527 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /PAYROLL_MANAGEMENT_SYSTEM/src/main/java
+2025-10-06 22:50:13,529 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /PAYROLL_MANAGEMENT_SYSTEM/src/main/resources
+2025-10-06 22:50:13,529 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /PAYROLL_MANAGEMENT_SYSTEM/src/main/resources
+2025-10-06 22:50:13,529 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding source folder /PAYROLL_MANAGEMENT_SYSTEM/src/test/java
+2025-10-06 22:50:13,530 [Worker-3: Import Getting Started Content] INFO  o.e.m.j.i.AbstractJavaProjectConfigurator - Adding resource folder /PAYROLL_MANAGEMENT_SYSTEM/src/test/resources
+2025-10-06 22:50:14,084 [Worker-3: Import Getting Started Content] INFO  o.e.m.c.i.p.ProjectConfigurationManager - Update completed for 1 poms: local refresh takes 0.00 sec, refresh facades takes 0.00 sec, update config takes 0.00 sec 
+2025-10-06 22:50:15,067 [Worker-2: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-10-06 22:50:15,083 [Worker-2: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-10-06 22:50:15,088 [Worker-2: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory D:\JAVA_TRAINING\CAPSTONE_PROJECT\PAYROLL_MANAGEMENT_SYSTEM\src\test\resources
+2025-10-06 22:52:24,095 [Worker-9: Building] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.project:PAYROLL_MANAGEMENT_SYSTEM:0.0.1-SNAPSHOT @ D:\JAVA_TRAINING\CAPSTONE_PROJECT\PAYROLL_MANAGEMENT_SYSTEM\pom.xml.
+2025-10-06 22:52:25,242 [Worker-9: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-10-06 22:52:25,245 [Worker-9: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-10-06 22:52:25,250 [Worker-9: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory D:\JAVA_TRAINING\CAPSTONE_PROJECT\PAYROLL_MANAGEMENT_SYSTEM\src\test\resources
+2025-10-06 22:52:26,607 [Worker-17: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-10-06 22:52:26,625 [Worker-17: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-10-06 22:52:26,629 [Worker-17: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory D:\JAVA_TRAINING\CAPSTONE_PROJECT\PAYROLL_MANAGEMENT_SYSTEM\src\test\resources
+2025-10-06 22:52:34,090 [Worker-16: Building] INFO  o.e.m.c.i.l.LifecycleMappingFactory - Using org.eclipse.m2e.jdt.JarLifecycleMapping lifecycle mapping for MavenProject: com.project:PAYROLL_MANAGEMENT_SYSTEM:0.0.1-SNAPSHOT @ D:\JAVA_TRAINING\CAPSTONE_PROJECT\PAYROLL_MANAGEMENT_SYSTEM\pom.xml.
+2025-10-06 22:52:34,970 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-10-06 22:52:34,972 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-10-06 22:52:34,977 [Worker-16: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory D:\JAVA_TRAINING\CAPSTONE_PROJECT\PAYROLL_MANAGEMENT_SYSTEM\src\test\resources
+2025-10-06 22:53:25,634 [Worker-5: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 1 resource from src\main\resources to target\classes
+2025-10-06 22:53:25,655 [Worker-5: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - Copying 0 resource from src\main\resources to target\classes
+2025-10-06 22:53:25,660 [Worker-5: Building] INFO  o.a.m.s.f.DefaultMavenResourcesFiltering - skip non existing resourceDirectory D:\JAVA_TRAINING\CAPSTONE_PROJECT\PAYROLL_MANAGEMENT_SYSTEM\src\test\resources

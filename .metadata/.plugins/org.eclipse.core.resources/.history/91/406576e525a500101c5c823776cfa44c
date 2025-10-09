@@ -1,0 +1,77 @@
+package com.project.controllers;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.project.dto.OrganizationDTO;
+import com.project.entity.Organization;
+import com.project.entity.VerificationStatus;
+import com.project.mapper.EntityMapper;
+import com.project.service.OrganizationService;
+
+import lombok.RequiredArgsConstructor;
+
+@RestController
+@RequestMapping("/api/organizations")
+@RequiredArgsConstructor
+public class OrganizationController {
+
+    private final OrganizationService organizationService;
+
+ // ✅ Create organization
+    @PostMapping
+    public ResponseEntity<OrganizationDTO> createOrganization(@RequestBody OrganizationDTO dto) {
+        Organization organization = EntityMapper.toOrganizationEntity(dto, null); // bank will be set in service
+        Organization saved = organizationService.createOrganization(organization);
+        return ResponseEntity.ok(EntityMapper.toOrganizationDTO(saved));
+    }
+
+    // ✅ Get all organizations
+    @GetMapping
+    public ResponseEntity<List<OrganizationDTO>> getAllOrganizations() {
+        List<OrganizationDTO> organizations = organizationService.getAllOrganizations().stream()
+                .map(mapper::toOrganizationDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(organizations);
+    }
+
+    // ✅ Get single org
+    @GetMapping("/{id}")
+    public ResponseEntity<OrganizationDTO> getOrganizationById(@PathVariable Long id) {
+        Organization organization = organizationService.getOrganizationById(id);
+        return ResponseEntity.ok(mapper.toOrganizationDTO(organization));
+    }
+
+    // ✅ Verification endpoint for Bank Admin
+    @PutMapping("/{organizationId}/verify")
+    public ResponseEntity<OrganizationDTO> verifyOrganization(
+            @PathVariable Long organizationId,
+            @RequestParam Long bankAdminId,
+            @RequestParam VerificationStatus status) {
+
+        Organization updated = organizationService.verifyOrganization(organizationId, bankAdminId, status);
+        return ResponseEntity.ok(mapper.toOrganizationDTO(updated));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Organization> updateOrganization(@PathVariable Long id, @RequestBody Organization updatedOrg) {
+        return ResponseEntity.ok(organizationService.updateOrganization(id, updatedOrg));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteOrganization(@PathVariable Long id) {
+        organizationService.deleteOrganization(id);
+        return ResponseEntity.noContent().build();
+    }
+}

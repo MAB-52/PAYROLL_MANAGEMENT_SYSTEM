@@ -1,0 +1,34 @@
+package com.project.dto;
+
+import java.util.List;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class EmployeeDTO {
+
+	private Long id;
+    private String fullName;
+    private String email;
+    private String password;
+    private String department;
+    private String designation;
+
+    private String accountNumber;
+    private String ifscCode;
+    private String bankName;
+    private String documentUrl; // Bank account verification doc
+    private String verificationStatus; // PENDING / APPROVED / REJECTED
+
+    private Long organizationId; // To link with Organization
+
+    private SalaryStructureDTO salaryStructure; // Nested DTO for salary
+    private List<Long> salaryPaymentIds; // payments received
+    private List<Long> concernIds; // issues raised
+}

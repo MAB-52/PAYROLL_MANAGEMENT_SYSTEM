@@ -1,0 +1,15 @@
+package com.project.dto;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SalaryStructureDTO {
+	private Long id;
+    private double basic;
+    private double hra;
+    private double da;
+    private double pf;
+    private double allowances;
+    private double netSalary;
+}

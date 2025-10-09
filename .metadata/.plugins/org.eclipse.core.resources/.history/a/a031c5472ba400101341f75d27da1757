@@ -1,0 +1,20 @@
+package com.project.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SalaryStructureDTO {
+	private Long id;
+    private double basic;
+    private double hra;
+    private double da;
+    private double pf;
+    private double allowances;
+    private double netSalary;
+}

@@ -25,6 +25,6 @@ public class User {
     private String role; // e.g. "ADMIN", "EMPLOYEE", etc.
 
     @ManyToOne
-    @JoinColumn(name = "organization_id")
+    @JoinColumn(name = "organization_id", nullable = true)
     private Organization organization;
 }

@@ -1,0 +1,48 @@
+package com.project.serviceImpl;
+
+
+import com.project.entity.SalaryPayment;
+import com.project.entity.SalaryStatus;
+import com.project.repo.SalaryPaymentRepo;
+import com.project.service.SalaryPaymentService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class SalaryPaymentServiceImpl implements SalaryPaymentService {
+
+    private final SalaryPaymentRepo paymentRepo;
+
+    @Override
+    public SalaryPayment createPayment(SalaryPayment payment) {
+        payment.setStatus(SalaryStatus.PENDING); 
+        return paymentRepo.save(payment);
+    }
+
+    @Override
+    public List<SalaryPayment> getPaymentsByEmployee(Long employeeId) {
+        return paymentRepo.findByEmployeeId(employeeId);
+    }
+
+    @Override
+    public List<SalaryPayment> getAllPayments() {
+        return paymentRepo.findAll();
+    }
+
+    @Override
+    public SalaryPayment updatePaymentStatus(Long id, String status) {
+        SalaryPayment existing = paymentRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Payment not found with ID: " + id));
+
+        existing.setStatus(SalaryStatus.valueOf(status.toUpperCase()));  
+        return paymentRepo.save(existing);
+    }
+
+    @Override
+    public void deletePayment(Long id) {
+        paymentRepo.deleteById(id);
+    }
+}

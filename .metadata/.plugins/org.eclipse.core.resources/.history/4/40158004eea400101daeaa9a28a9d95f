@@ -1,0 +1,18 @@
+package com.project.repo;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.project.entity.SalaryStructure;
+
+@Repository
+public interface SalaryStructureRepo extends JpaRepository<SalaryStructure, Long> {
+	 // Find salaries for a specific employee
+    List<SalaryStructure> findByEmployeeId(Long employeeId);
+
+    // Find salaries for a specific organization
+    List<SalaryStructure> findByOrganizationId(Long organizationId);
+
+}

@@ -1,0 +1,38 @@
+package com.project.serviceImpl;
+
+import org.springframework.stereotype.Service;
+
+import com.project.dto.LoginRequestDTO;
+import com.project.dto.LoginResponseDTO;
+import com.project.entity.Employee;
+import com.project.repo.EmployeeRepo;
+import com.project.service.AuthService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class AuthServiceImpl implements AuthService {
+
+    private final EmployeeRepo employeeRepository;
+
+    @Override
+    public LoginResponseDTO login(LoginRequestDTO request) {
+        Employee employee = employeeRepository.findByEmail(request.getUsername())
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        // In a real app, use a password encoder!
+        if (!employee.getPassword().equals(request.getPassword())) {
+            throw new RuntimeException("Invalid email or password");
+        }
+
+        return LoginResponseDTO.builder()
+                //.token("sample-jwt-token")        // Replace with real JWT if implemented
+                .userId(employee.getId())
+                .name(employee.getFullName())
+                .email(employee.getEmail())
+                .role("EMPLOYEE")                 // Or derive dynamically
+                .build();
+
+    }
+}

@@ -1,0 +1,82 @@
+package com.project.controllers;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import com.project.entity.Organization;
+import com.project.entity.VerificationStatus;
+import com.project.service.OrganizationService;
+
+@RestController
+@RequestMapping("/api/organizations")
+@CrossOrigin(origins = "*")
+public class OrganizationController {
+
+    @Autowired
+    private OrganizationService organizationService;
+
+    // ✅ Create new organization
+    @PostMapping
+    public Organization createOrganization(@RequestBody Organization organization) {
+        return organizationService.createOrganization(organization);
+    }
+
+    // ✅ Get all organizations
+    @GetMapping
+    public List<Organization> getAllOrganizations() {
+        return organizationService.getAllOrganizations();
+    }
+
+    // ✅ Get single organization by ID
+    @GetMapping("/{id}")
+    public Organization getOrganizationById(@PathVariable Long id) {
+        return organizationService.getOrganizationById(id);
+    }
+
+    // ✅ Verify or Reject organization
+    @PutMapping("/{organizationId}/verify")
+    public Organization verifyOrganization(
+            @PathVariable Long organizationId,
+            @RequestBody VerificationRequest request) {
+
+        return organizationService.verifyOrganization(
+                organizationId,
+                request.getAdminId(),
+                VerificationStatus.valueOf(request.getStatus())
+        );
+    }
+
+    // ✅ Update organization details
+    @PutMapping("/{id}")
+    public Organization updateOrganization(@PathVariable Long id, @RequestBody Organization updatedOrg) {
+        return organizationService.updateOrganization(id, updatedOrg);
+    }
+
+    // ✅ Delete organization
+    @DeleteMapping("/{id}")
+    public void deleteOrganization(@PathVariable Long id) {
+        organizationService.deleteOrganization(id);
+    }
+
+    // ✅ Request body model for verification
+    public static class VerificationRequest {
+        private String status;
+        private Long adminId;
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public Long getAdminId() {
+            return adminId;
+        }
+
+        public void setAdminId(Long adminId) {
+            this.adminId = adminId;
+        }
+    }
+}

@@ -1,0 +1,28 @@
+package com.project.dto;
+
+import lombok.*;
+import java.math.BigDecimal;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class EmployeeDTO {
+
+    private Long id;
+    private String fullName;
+    private String email;
+    private String department;
+    private String designation;
+    private String accountNumber;
+    private String ifscCode;
+    private String bankName;
+    private String documentUrl;
+    private String verificationStatus;
+    private double basicSalary;
+    private double hra;
+    private double da;
+    private double pf;
+    private double allowances;
+    private Long organizationId;
+}

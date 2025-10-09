@@ -1,0 +1,8 @@
+package com.project.entity;
+
+public enum ConcernStatus {
+	OPEN,
+    IN_PROGRESS,
+    RESOLVED,
+    REJECTED
+}

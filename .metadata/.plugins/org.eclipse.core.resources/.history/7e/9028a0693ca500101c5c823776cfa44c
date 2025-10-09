@@ -1,0 +1,66 @@
+package com.project.serviceImpl;
+
+import com.project.dto.EmployeeDTO;
+import com.project.entity.Employee;
+import com.project.entity.Organization;
+import com.project.mapper.EntityMapper;
+import com.project.repo.EmployeeRepo;
+import com.project.repo.OrganizationRepo;
+import com.project.service.EmployeeService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class EmployeeServiceImpl implements EmployeeService {
+
+    private final EmployeeRepo employeeRepository;
+    private final OrganizationRepo organizationRepository;
+    private final EntityMapper entityMapper;
+
+    @Override
+    public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
+        Organization organization = organizationRepository.findById(employeeDTO.getOrganizationId())
+                .orElseThrow(() -> new RuntimeException("Organization not found with ID: " + employeeDTO.getOrganizationId()));
+
+        Employee employee = entityMapper.toEmployeeEntity(employeeDTO, organization);
+        return entityMapper.toEmployeeDTO(employeeRepository.save(employee));
+    }
+
+    @Override
+    public EmployeeDTO getEmployeeById(Long id) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + id));
+        return entityMapper.toEmployeeDTO(employee);
+    }
+
+    @Override
+    public List<EmployeeDTO> getAllEmployees() {
+        return employeeRepository.findAll()
+                .stream()
+                .map(entityMapper::toEmployeeDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO) {
+        Employee existing = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with ID: " + id));
+
+        existing.setFullName(employeeDTO.getFullName());
+        existing.setEmail(employeeDTO.getEmail());
+        existing.setDepartment(employeeDTO.getDepartment());
+        existing.setDesignation(employeeDTO.getDesignation());
+        existing.setSalaryStructure(entityMapper.toSalaryEntity(employeeDTO.getSalaryStructure()));
+
+        return entityMapper.toEmployeeDTO(employeeRepository.save(existing));
+    }
+
+    @Override
+    public void deleteEmployee(Long id) {
+        employeeRepository.deleteById(id);
+    }
+}

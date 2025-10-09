@@ -1,0 +1,128 @@
+package com.project.serviceImpl;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.project.entity.BankAdmin;
+import com.project.entity.Concern;
+import com.project.entity.ConcernStatus;
+import com.project.entity.Organization;
+import com.project.entity.SalaryPayment;
+import com.project.entity.SalaryStatus;
+import com.project.entity.VerificationStatus;
+import com.project.repo.BankAdminRepo;
+import com.project.repo.OrganizationRepo;
+import com.project.service.BankAdminService;
+
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class BankAdminServiceImpl implements BankAdminService {
+
+    private final BankAdminRepo bankAdminRepo;
+
+    @Override
+    public BankAdmin createBankAdmin(BankAdmin admin) {
+        return bankAdminRepo.save(admin);
+    }
+
+    @Override
+    public BankAdmin getBankAdminById(Long id) {
+        return bankAdminRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bank Admin not found with ID: " + id));
+    }
+
+    @Override
+    public List<BankAdmin> getAllBankAdmins() {
+        return bankAdminRepo.findAll();
+    }
+
+    @Override
+    public BankAdmin updateBankAdmin(Long id, BankAdmin updatedAdmin) {
+        BankAdmin existing = getBankAdminById(id);
+        existing.setName(updatedAdmin.getName());
+        existing.setEmail(updatedAdmin.getEmail());
+        existing.setContactNumber(updatedAdmin.getContactNumber());
+        return bankAdminRepo.save(existing);
+    }
+
+    @Override
+    public void deleteBankAdmin(Long id) {
+        bankAdminRepo.deleteById(id);
+    }
+    
+    // --- Organization ---
+    @Override
+    public Organization approveOrganization(Long orgId, Long adminId) {
+        Organization org = OrganizationRepo.findById(orgId)
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
+        BankAdmin admin = getBankAdminById(adminId);
+
+        org.setVerificationStatus(VerificationStatus.APPROVED);
+        org.setVerifiedBy(admin);
+        return OrganizationRepo.save(org);
+    }
+
+    @Override
+    public Organization rejectOrganization(Long orgId, Long adminId, String remarks) {
+        Organization org = organizationRepo.findById(orgId)
+                .orElseThrow(() -> new RuntimeException("Organization not found"));
+        BankAdmin admin = getBankAdminById(adminId);
+
+        org.setVerificationStatus(VerificationStatus.REJECTED);
+        org.setVerifiedBy(admin);
+        // Optional: Store remarks somewhere if you have a column
+        return organizationRepo.save(org);
+    }
+
+    // --- Salary Payment ---
+    @Override
+    public SalaryPayment approveSalaryPayment(Long paymentId, Long adminId) {
+        SalaryPayment payment = salaryPaymentRepo.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("SalaryPayment not found"));
+        BankAdmin admin = getBankAdminById(adminId);
+
+        payment.setStatus(SalaryStatus.COMPLETED);
+        payment.setVerifiedBy(admin);
+        return salaryPaymentRepo.save(payment);
+    }
+
+    @Override
+    public SalaryPayment rejectSalaryPayment(Long paymentId, Long adminId, String remarks) {
+        SalaryPayment payment = salaryPaymentRepo.findById(paymentId)
+                .orElseThrow(() -> new RuntimeException("SalaryPayment not found"));
+        BankAdmin admin = getBankAdminById(adminId);
+
+        payment.setStatus(SalaryStatus.REJECTED);
+        payment.setVerifiedBy(admin);
+        // Optional: Store remarks if you have a field
+        return salaryPaymentRepo.save(payment);
+    }
+
+    // --- Concern Resolution ---
+    @Override
+    public Concern resolveConcern(Long concernId, Long adminId, String resolutionRemarks) {
+        Concern concern = concernRepo.findById(concernId)
+                .orElseThrow(() -> new RuntimeException("Concern not found"));
+        BankAdmin admin = getBankAdminById(adminId);
+
+        concern.setStatus(ConcernStatus.RESOLVED);
+        concern.setHandledBy(admin);
+        concern.setResolutionRemarks(resolutionRemarks);
+        return concernRepo.save(concern);
+    }
+
+    @Override
+    public Concern rejectConcern(Long concernId, Long adminId, String remarks) {
+        Concern concern = concernRepo.findById(concernId)
+                .orElseThrow(() -> new RuntimeException("Concern not found"));
+        BankAdmin admin = getBankAdminById(adminId);
+
+        concern.setStatus(ConcernStatus.REJECTED);
+        concern.setHandledBy(admin);
+        concern.setResolutionRemarks(remarks);
+        return concernRepo.save(concern);
+    }
+}

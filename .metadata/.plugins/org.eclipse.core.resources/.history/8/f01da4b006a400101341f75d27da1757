@@ -1,0 +1,39 @@
+package com.project.entity;
+
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.List;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "bank_admin")
+public class BankAdmin {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    @Column(unique = true, nullable = false)
+    private String email;
+
+    private String password;
+
+    private String contactNumber;
+
+    @OneToOne
+    @JoinColumn(name = "bank_id")
+    private Bank bank;
+
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    // Optional: reverse mapping to see which organizations this admin verified
+    @OneToMany(mappedBy = "verifiedBy", cascade = CascadeType.ALL)
+    private List<Organization> verifiedOrganizations;
+}

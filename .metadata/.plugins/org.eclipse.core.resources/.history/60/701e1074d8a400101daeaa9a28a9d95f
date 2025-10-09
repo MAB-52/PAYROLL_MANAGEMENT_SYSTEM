@@ -1,0 +1,46 @@
+package com.project.serviceImpl;
+
+import com.project.entity.BankAdmin;
+import com.project.repo.BankAdminRepo;
+import com.project.service.BankAdminService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class BankAdminServiceImpl implements BankAdminService {
+
+    private final BankAdminRepo bankAdminRepo;
+
+    @Override
+    public BankAdmin createBankAdmin(BankAdmin admin) {
+        return bankAdminRepo.save(admin);
+    }
+
+    @Override
+    public BankAdmin getBankAdminById(Long id) {
+        return bankAdminRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Bank Admin not found with ID: " + id));
+    }
+
+    @Override
+    public List<BankAdmin> getAllBankAdmins() {
+        return bankAdminRepo.findAll();
+    }
+
+    @Override
+    public BankAdmin updateBankAdmin(Long id, BankAdmin updatedAdmin) {
+        BankAdmin existing = getBankAdminById(id);
+        existing.setName(updatedAdmin.getName());
+        existing.setEmail(updatedAdmin.getEmail());
+        existing.setContactNumber(updatedAdmin.getContactNumber());
+        return bankAdminRepo.save(existing);
+    }
+
+    @Override
+    public void deleteBankAdmin(Long id) {
+        bankAdminRepo.deleteById(id);
+    }
+}

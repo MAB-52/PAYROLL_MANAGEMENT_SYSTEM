@@ -1,17 +1,11 @@
 package com.project.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Data
@@ -34,11 +28,26 @@ public class BankAdmin {
 
     private String contactNumber;
 
+    // ✅ Backward side of OneToOne with Bank
     @OneToOne
     @JoinColumn(name = "bank_id")
+    @JsonBackReference // prevents recursion
     private Bank bank;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
+
+    @OneToMany(mappedBy = "verifiedBy", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<SalaryPayment> verifiedPayments;
+
+    @OneToMany(mappedBy = "handledBy", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Concern> handledConcerns;
+
+    @OneToMany(mappedBy = "verifiedBy", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Organization> verifiedOrganizations;
 }

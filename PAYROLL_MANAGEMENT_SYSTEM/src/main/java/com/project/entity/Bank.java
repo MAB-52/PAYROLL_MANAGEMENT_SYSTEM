@@ -2,20 +2,11 @@ package com.project.entity;
 
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import jakarta.persistence.*;
+import lombok.*;
 
 @Entity
 @Data
@@ -36,9 +27,13 @@ public class Bank {
 
     private String contactNumber;
 
-    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    // ✅ One Bank can have multiple Organizations
+    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // Forward side — serialized once
     private List<Organization> organizations;
 
+    // ✅ One Bank can have one BankAdmin
     @OneToOne(mappedBy = "bank", cascade = CascadeType.ALL)
+    @JsonIgnore // Prevent circular link (BankAdmin → Bank → BankAdmin → ...)
     private BankAdmin bankAdmin;
 }

@@ -1,0 +1,26 @@
+package com.project.repo;
+
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import com.project.entity.Bank;
+import com.project.entity.Organization;
+import com.project.entity.VerificationStatus;
+
+@Repository
+public interface OrganizationRepo extends JpaRepository<Organization, Long> {
+	 // Find organization by unique email
+	Optional<Organization> findByContactEmail(String contactEmail);
+
+    // Find all organizations under a specific bank
+    List<Organization> findByBank(Bank bank);
+
+    // Find organizations by verification status (PENDING, APPROVED, REJECTED)
+    List<Organization> findByVerificationStatus(VerificationStatus status);
+
+    // Check if organization exists by registration number or name
+    boolean existsByOrgName(String orgName);
+}

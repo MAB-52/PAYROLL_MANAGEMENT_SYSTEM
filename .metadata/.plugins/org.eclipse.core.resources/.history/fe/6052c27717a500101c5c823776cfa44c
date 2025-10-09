@@ -1,0 +1,71 @@
+package com.project.serviceImpl;
+
+import com.project.entity.Organization;
+import com.project.entity.VerificationStatus;
+import com.project.repo.OrganizationRepo;
+import com.project.service.OrganizationService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class OrganizationServiceImpl implements OrganizationService {
+
+    private final OrganizationRepo organizationRepo;
+
+    // Create new Organization
+    @Override
+    public Organization createOrganization(Organization organization) {
+        organization.setVerificationStatus(VerificationStatus.PENDING); // Default
+        return organizationRepo.save(organization);
+    }
+
+    // Get Organization by ID
+    @Override
+    public Organization getOrganizationById(Long id) {
+        return organizationRepo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Organization not found with ID: " + id));
+    }
+
+    // Get all organizations
+    @Override
+    public List<Organization> getAllOrganizations() {
+        return organizationRepo.findAll();
+    }
+
+    // Update basic details
+    @Override
+    public Organization updateOrganization(Long id, Organization updatedOrg) {
+        Organization existing = getOrganizationById(id);
+        existing.setOrgName(updatedOrg.getOrgName());
+        existing.setRegistrationNumber(updatedOrg.getRegistrationNumber());
+        existing.setContactEmail(updatedOrg.getContactEmail());
+        existing.setContactPhone(updatedOrg.getContactPhone());
+        existing.setAddress(updatedOrg.getAddress());
+        return organizationRepo.save(existing);
+    }
+
+    // Update only Verification Status (Approved/Rejected)
+    @Override
+    public Organization updateVerificationStatus(Long id, VerificationStatus status) {
+        Organization existing = getOrganizationById(id);
+        existing.setVerificationStatus(status);
+        return organizationRepo.save(existing);
+    }
+
+    // Update document URL (when organization uploads verification proof)
+    @Override
+    public Organization updateDocument(Long id, String documentUrl) {
+        Organization existing = getOrganizationById(id);
+        existing.setDocumentUrl(documentUrl);
+        return organizationRepo.save(existing);
+    }
+
+    // Delete organization
+    @Override
+    public void deleteOrganization(Long id) {
+        organizationRepo.deleteById(id);
+    }
+}

@@ -1,0 +1,8 @@
+package com.project.entity;
+
+public enum SalaryStatus {
+    PENDING,
+    COMPLETED,
+    FAILED,
+    REJECTED
+}

@@ -1,0 +1,34 @@
+package com.project.dto;
+
+import lombok.*;
+import java.time.LocalDateTime;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class SalaryPaymentDTO {
+
+	   	private Long id;
+
+	    // Amount paid as salary
+	    private Double amount;
+
+	    // Payment date
+	    private LocalDateTime paymentDate;
+
+	    // Month or period of salary (e.g., "March 2025")
+	    private String salaryMonth;
+
+	    // Payment status (PENDING, COMPLETED, FAILED)
+	    private String status;
+
+	    // Optional remarks
+	    private String remarks;
+
+	    // IDs of related entities
+	    private Long employeeId;       // Employee receiving salary
+	    private Long organizationId;   // Organization making the payment
+	    private Long verifiedByAdminId; // Optional BankAdmin who verified
+
+}

@@ -1,6 +1,7 @@
 package com.project.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 @Entity
@@ -15,16 +16,22 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Username is required")
     private String username;
 
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
     @Column(unique = true)
     private String email;
 
+    @NotBlank(message = "Password is required")
+    @Size(min = 4, message = "Password must be at least 4 characters")
     private String password;
 
-    private String role; // e.g. "ADMIN", "EMPLOYEE", etc.
+    @NotBlank(message = "Role is required")
+    private String role; // e.g. ADMIN, EMPLOYEE
 
     @ManyToOne
-    @JoinColumn(name = "organization_id", nullable = true)
+    @JoinColumn(name = "organization_id")
     private Organization organization;
 }

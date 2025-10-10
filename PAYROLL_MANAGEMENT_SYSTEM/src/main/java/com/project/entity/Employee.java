@@ -1,6 +1,7 @@
 package com.project.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import lombok.*;
 import java.util.List;
 
@@ -16,37 +17,52 @@ public class Employee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Full name is required")
+    @Size(min = 2, max = 100, message = "Full name must be between 2 and 100 characters")
     private String fullName;
 
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Email is required")
     @Column(unique = true, nullable = false)
     private String email;
-    
+
+    @NotBlank(message = "Password is required")
+    @Size(min = 4, message = "Password must have at least 4 characters")
     @Column(nullable = false)
     private String password;
 
+    @NotBlank(message = "Department is required")
     private String department;
 
+    @NotBlank(message = "Designation is required")
     private String designation;
 
+    @NotBlank(message = "Account number is required")
+    @Pattern(regexp = "\\d{9,18}", message = "Account number must be 9 to 18 digits")
     private String accountNumber;
 
+    @NotBlank(message = "IFSC code is required")
+    @Pattern(regexp = "^[A-Z]{4}0[A-Z0-9]{6}$", message = "Invalid IFSC code format")
     private String ifscCode;
 
+    @NotBlank(message = "Bank name is required")
     private String bankName;
 
-    // For bank account update verification via Cloudinary document
+    @NotBlank(message = "Document URL is required")
+    @Pattern(regexp = "^(http|https)://.*$", message = "Invalid document URL format")
     private String documentUrl;
 
     @Enumerated(EnumType.STRING)
-    private VerificationStatus verificationStatus; // PENDING, APPROVED, REJECTED
+    @NotNull(message = "Verification status is required")
+    private VerificationStatus verificationStatus;
 
-    // --- Link to Salary Structure ---
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "salary_structure_id")
     private SalaryStructure salaryStructure;
 
     @ManyToOne
     @JoinColumn(name = "organization_id", nullable = false)
+    @NotNull(message = "Organization reference is required")
     private Organization organization;
 
     @OneToMany(mappedBy = "employee", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -54,5 +70,4 @@ public class Employee {
 
     @OneToMany(mappedBy = "raisedByEmployee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Concern> concerns;
-
 }

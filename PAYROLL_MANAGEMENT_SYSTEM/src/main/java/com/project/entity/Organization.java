@@ -1,10 +1,11 @@
 package com.project.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
+import lombok.*;
+import java.util.List;
 
 @Entity
 @Table(name = "organization")
@@ -18,33 +19,43 @@ public class Organization {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank(message = "Organization name is required")
+    @Size(min = 3, message = "Organization name must have at least 3 characters")
     private String orgName;
 
+    @NotBlank(message = "Registration number is required")
     @Column(unique = true, nullable = false)
     private String registrationNumber;
 
+    @Email(message = "Invalid email format")
+    @NotBlank(message = "Contact email is required")
     @Column(nullable = false)
     private String contactEmail;
 
+    @NotBlank(message = "Contact phone is required")
+    @Pattern(regexp = "^[6-9]\\d{9}$", message = "Invalid phone number format")
     private String contactPhone;
 
     @Enumerated(EnumType.STRING)
-    private VerificationStatus verificationStatus;  // PENDING, APPROVED, REJECTED
+    @NotNull(message = "Verification status is required")
+    private VerificationStatus verificationStatus;
 
+    @NotBlank(message = "Document URL is required")
+    @Pattern(regexp = "^(http|https)://.*$", message = "Invalid document URL format")
     private String documentUrl;
 
+    @NotBlank(message = "Address is required")
     private String address;
 
-    // ✅ Many organizations belong to one Bank
     @ManyToOne
     @JoinColumn(name = "bank_id", nullable = false)
-    @JsonBackReference // prevents infinite loop
+    @NotNull(message = "Bank reference is required")
+    @JsonBackReference
     private Bank bank;
 
     @ManyToOne
     @JoinColumn(name = "bank_admin_id")
-    @JsonIgnore // prevent nested admin inside org
+    @JsonIgnore
     private BankAdmin verifiedBy;
 
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)

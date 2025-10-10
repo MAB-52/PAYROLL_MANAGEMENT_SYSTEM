@@ -1,0 +1,28 @@
+package com.project.exception;
+
+import java.nio.file.AccessDeniedException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ErrorResponse(403, ex.getMessage()));
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleAll(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(500, ex.getMessage()));
+    }
+
+    public static class ErrorResponse {
+        public int status;
+        public String message;
+        public ErrorResponse(int status, String message) { this.status = status; this.message = message; }
+        public int getStatus() { return status; }
+        public String getMessage() { return message; }
+    }
+}

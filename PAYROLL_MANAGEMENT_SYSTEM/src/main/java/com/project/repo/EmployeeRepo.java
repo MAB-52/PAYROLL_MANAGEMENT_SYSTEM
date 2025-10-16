@@ -11,5 +11,9 @@ import com.project.entity.Employee;
 @Repository
 public interface EmployeeRepo extends JpaRepository<Employee, Long> {
     Optional<Employee> findByEmail(String email);
+
+    // optional: if employees will have username field in future
+    Optional<Employee> findByUsername(String username);
+    
     List<Employee> findByOrganizationId(Long organizationId);
 }

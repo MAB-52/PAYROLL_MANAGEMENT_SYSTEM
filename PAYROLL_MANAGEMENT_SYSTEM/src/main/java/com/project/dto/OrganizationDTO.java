@@ -10,7 +10,7 @@ import java.util.List;
 public class OrganizationDTO {
 
     private Long id;
-    private String organizationName;
+    private String orgName;
     private String email;
     private String contactNumber;
     private String address;

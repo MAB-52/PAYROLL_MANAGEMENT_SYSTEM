@@ -15,6 +15,7 @@ public class EmployeeDTO {
 
 	private Long id;
     private String fullName;
+    private String username;
     private String email;
     private String password;
     private String department;
@@ -31,4 +32,5 @@ public class EmployeeDTO {
     private SalaryStructureDTO salaryStructure; // Nested DTO for salary
     private List<Long> salaryPaymentIds; // payments received
     private List<Long> concernIds; // issues raised
+
 }

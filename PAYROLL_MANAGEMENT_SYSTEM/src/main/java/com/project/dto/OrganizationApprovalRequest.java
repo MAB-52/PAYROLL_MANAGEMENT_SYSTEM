@@ -5,7 +5,9 @@ import lombok.Data;
 
 @Data
 public class OrganizationApprovalRequest {
-    private VerificationStatus status;  // APPROVED / REJECTED
+    private VerificationStatus status; // APPROVED or REJECTED
     private Long adminId;
-    private String remarks;  // Optional for rejection
+    private String remarks; // optional
+    private String username; // for org login (if approved)
+    private String password; // for org login (if approved)
 }

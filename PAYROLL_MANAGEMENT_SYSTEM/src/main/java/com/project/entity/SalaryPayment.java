@@ -34,7 +34,8 @@ public class SalaryPayment {
     private SalaryStatus status;
 
     // Remarks (optional)
-    //private String remarks;
+    @Column(nullable = true)
+    private String remarks;
 
     // Employee receiving the salary
     @ManyToOne

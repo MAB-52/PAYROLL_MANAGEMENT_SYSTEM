@@ -50,6 +50,7 @@ public class EntityMapper {
         return EmployeeDTO.builder()
                 .id(employee.getId())
                 .fullName(employee.getFullName())
+                .username(employee.getUsername())      
                 .email(employee.getEmail())
                 .password(employee.getPassword()) 
                 .department(employee.getDepartment())
@@ -77,6 +78,8 @@ public class EntityMapper {
                 .id(dto.getId())
                 .fullName(dto.getFullName())
                 .email(dto.getEmail())
+                .username(dto.getUsername())            
+                .password(dto.getPassword())            
                 .department(dto.getDepartment())
                 .designation(dto.getDesignation())
                 .accountNumber(dto.getAccountNumber())
@@ -85,13 +88,11 @@ public class EntityMapper {
                 .documentUrl(dto.getDocumentUrl())
                 .verificationStatus(dto.getVerificationStatus() != null
                         ? VerificationStatus.valueOf(dto.getVerificationStatus())
-                        : null)
-                .salaryStructure(toSalaryStructureEntity(dto.getSalaryStructure()))
+                        : VerificationStatus.PENDING)   // ✅ default to PENDING
+                .salaryStructure(toSalaryEntity(dto.getSalaryStructure()))
                 .organization(organization)
-                .password(dto.getPassword())   // ✅ ADD THIS LINE
                 .build();
     }
-
 
     public List<EmployeeDTO> toEmployeeDTOList(List<Employee> employees) {
         return employees == null ? null :
@@ -102,44 +103,49 @@ public class EntityMapper {
  // ===============================
  // Organization Mapping
  // ===============================
- public OrganizationDTO toOrganizationDTO(Organization org) {
-     if (org == null) return null;
+ // DTO → Entity
+    public Organization toOrganizationEntity(OrganizationDTO dto, Bank bank) {
+        if (dto == null) return null;
 
-     return OrganizationDTO.builder()
-             .id(org.getId())
-             .organizationName(org.getOrgName())
-             .registrationNumber(org.getRegistrationNumber()) // ✅ Added
-             .email(org.getContactEmail())
-             .contactNumber(org.getContactPhone()) // ✅ Added
-             .address(org.getAddress())
-             .documentUrl(org.getDocumentUrl())
-             .verificationStatus(org.getVerificationStatus() != null ? org.getVerificationStatus().name() : null)
-             .bankId(org.getBank() != null ? org.getBank().getId() : null)
-             .employeeIds(org.getEmployees() != null
-                     ? org.getEmployees().stream().map(Employee::getId).collect(Collectors.toList())
-                     : null)
-             .paymentRequestIds(org.getPaymentRequests() != null
-                     ? org.getPaymentRequests().stream().map(PaymentRequest::getId).collect(Collectors.toList())
-                     : null)
-             .build();
- }
+        return Organization.builder()
+                .id(dto.getId())
+                .orgName(dto.getOrgName()) // ✅ FIXED
+                .registrationNumber(dto.getRegistrationNumber())
+                .contactEmail(dto.getEmail())
+                .contactPhone(dto.getContactNumber())
+                .address(dto.getAddress())
+                .documentUrl(dto.getDocumentUrl())
+                .verificationStatus(dto.getVerificationStatus() != null 
+                        ? VerificationStatus.valueOf(dto.getVerificationStatus()) 
+                        : null)
+                .bank(bank)
+                .build();
+    }
 
- public Organization toOrganizationEntity(OrganizationDTO dto, Bank bank) {
-     if (dto == null) return null;
+    // Entity → DTO
+    public OrganizationDTO toOrganizationDTO(Organization org) {
+        if (org == null) return null;
 
-     return Organization.builder()
-             .id(dto.getId())
-             .orgName(dto.getOrganizationName())
-             .registrationNumber(dto.getRegistrationNumber()) // ✅ Added
-             .contactEmail(dto.getEmail())
-             .contactPhone(dto.getContactNumber()) // ✅ Added
-             .address(dto.getAddress())
-             .documentUrl(dto.getDocumentUrl())
-             .verificationStatus(dto.getVerificationStatus() != null ? VerificationStatus.valueOf(dto.getVerificationStatus()) : null)
-             .bank(bank)
-             .build();
- }
-
+        return OrganizationDTO.builder()
+                .id(org.getId())
+                .orgName(org.getOrgName()) // ✅ FIXED
+                .registrationNumber(org.getRegistrationNumber())
+                .email(org.getContactEmail())
+                .contactNumber(org.getContactPhone())
+                .address(org.getAddress())
+                .documentUrl(org.getDocumentUrl())
+                .verificationStatus(org.getVerificationStatus() != null 
+                        ? org.getVerificationStatus().name() 
+                        : null)
+                .bankId(org.getBank() != null ? org.getBank().getId() : null)
+                .employeeIds(org.getEmployees() != null
+                        ? org.getEmployees().stream().map(Employee::getId).collect(Collectors.toList())
+                        : null)
+                .paymentRequestIds(org.getPaymentRequests() != null
+                        ? org.getPaymentRequests().stream().map(PaymentRequest::getId).collect(Collectors.toList())
+                        : null)
+                .build();
+    }
 
     // ===============================
     // BankAdmin Mapping

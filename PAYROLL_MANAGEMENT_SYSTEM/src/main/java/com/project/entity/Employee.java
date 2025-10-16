@@ -23,10 +23,14 @@ public class Employee {
 
     @Email(message = "Invalid email format")
     @NotBlank(message = "Email is required")
-    @Column(unique = true, nullable = false)
+    @Column(unique = false, nullable = false)
     private String email;
+    
+    //@NotBlank(message = "Username is required")
+    @Column(unique = true, nullable = false)
+    private String username;
 
-    @NotBlank(message = "Password is required")
+    //@NotBlank(message = "Password is required")
     @Size(min = 4, message = "Password must have at least 4 characters")
     @Column(nullable = false)
     private String password;

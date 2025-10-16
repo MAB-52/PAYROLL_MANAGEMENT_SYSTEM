@@ -1,12 +1,20 @@
 package com.project.service;
 
+import com.project.dto.SalaryPaymentDTO;
 import com.project.entity.SalaryPayment;
+
 import java.util.List;
 
 public interface SalaryPaymentService {
-    SalaryPayment createPayment(SalaryPayment payment);
-    List<SalaryPayment> getPaymentsByEmployee(Long employeeId);
-    List<SalaryPayment> getAllPayments();
-    SalaryPayment updatePaymentStatus(Long id, String status);
-    void deletePayment(Long id);
+
+    // Manager requests salary disbursal
+    List<SalaryPaymentDTO> createSalaryDisbursal(Long organizationId, String month);
+
+    // Bank admin approves salary
+    SalaryPaymentDTO approveSalaryPayment(Long paymentId, Long adminId);
+
+    // Bank admin rejects salary
+    SalaryPaymentDTO rejectSalaryPayment(Long paymentId, Long adminId, String remarks);
+
+    List<SalaryPaymentDTO> getPaymentsByOrganization(Long organizationId);
 }

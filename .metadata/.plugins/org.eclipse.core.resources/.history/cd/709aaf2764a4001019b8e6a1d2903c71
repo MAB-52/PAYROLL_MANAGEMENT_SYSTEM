@@ -1,9 +1,0 @@
-package com.project.repo;
-
-import com.project.entity.SalaryStructure;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-@Repository
-public interface SalaryRepo extends JpaRepository<SalaryStructure, Long> {
-}

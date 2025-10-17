@@ -1,5 +1,11 @@
 package com.project.serviceImpl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
 import com.project.dto.EmployeeDTO;
 import com.project.entity.Employee;
 import com.project.entity.Organization;
@@ -11,12 +17,8 @@ import com.project.repo.OrganizationRepo;
 import com.project.repo.UserRepo;
 import com.project.security.JwtUtil;
 import com.project.service.EmployeeService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -237,6 +239,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         // ✅ Updated to match JwtUtil signature
         return jwtUtil.generateToken(username, roles);
+    }
+
+    @Override
+    public List<EmployeeDTO> getPendingVerifications() {
+        List<Employee> pendingEmployees = employeeRepository.findByVerificationStatus(VerificationStatus.PENDING);
+
+        return pendingEmployees.stream()
+                .map(emp -> EmployeeDTO.builder()
+                        .id(emp.getId())
+                        .fullName(emp.getFullName())
+                        .email(emp.getEmail())
+                        .department(emp.getDepartment())
+                        .organizationId(emp.getOrganization().getId())
+                        .verificationStatus(emp.getVerificationStatus().name()) // <- use verificationStatus
+                        .build())
+                .collect(Collectors.toList());
     }
 
 }

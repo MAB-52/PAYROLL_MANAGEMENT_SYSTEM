@@ -32,8 +32,9 @@ public interface BankAdminService {
     Organization rejectOrganization(Long orgId, Long adminId, String remarks);
 
     // --- Concern Resolution ---
-    Concern resolveConcern(Long concernId, Long adminId, String resolutionRemarks);
+    Concern resolveConcern(Long concernId, Long adminId, String remarks);
     Concern rejectConcern(Long concernId, Long adminId, String remarks);
+    List<Concern> getAllConcerns();
     
     List<SalaryPaymentDTO> createSalaryDisbursalRequest(Long organizationId, String month);
 

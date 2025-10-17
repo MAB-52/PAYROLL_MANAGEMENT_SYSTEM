@@ -101,28 +101,34 @@ public class AuthServiceImpl implements AuthService {
         throw new RuntimeException("Invalid username or password");
     }
 
-    // ==================================
-    // 🔹 REGISTER BANK ADMIN
-    // ==================================
-    @Override
-    public RegisterResponseDTO registerBankAdmin(RegisterRequestDTO request) {
-        String username = request.getEmail().split("@")[0];
+ // ==================================
+ // 🔹 REGISTER BANK ADMIN
+ // ==================================
+ @Override
+ public RegisterResponseDTO registerBankAdmin(RegisterRequestDTO request) {
+     String username = request.getEmail().split("@")[0];
 
-        BankAdmin admin = BankAdmin.builder()
-                .name(request.getName())
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .contactNumber(request.getContactNumber())
-                .build();
+     // ✅ Fetch the Bank entity from DB
+     Bank bank = bankRepo.findById(request.getBankId())
+             .orElseThrow(() -> new RuntimeException("Bank not found with ID: " + request.getBankId()));
 
-        bankAdminService.createBankAdmin(admin);
+     // ✅ Build BankAdmin and attach Bank
+     BankAdmin admin = BankAdmin.builder()
+             .name(request.getName())
+             .email(request.getEmail())
+             .password(request.getPassword()) // keep plain here
+             .contactNumber(request.getContactNumber())
+             .bank(bank) // attach the Bank entity here ✅
+             .build();
 
-        return RegisterResponseDTO.builder()
-                .message("Bank Admin registered successfully")
-                .username(username)
-                .role("ROLE_BANK_ADMIN")
-                .build();
-    }
+     bankAdminService.createBankAdmin(admin);
+
+     return RegisterResponseDTO.builder()
+             .message("Bank Admin registered successfully")
+             .username(username)
+             .role("ROLE_BANK_ADMIN")
+             .build();
+ }
 
     // ==================================
     // 🔹 REGISTER ORGANIZATION (Manager)

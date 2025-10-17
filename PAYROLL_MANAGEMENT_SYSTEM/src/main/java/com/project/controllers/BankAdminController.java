@@ -47,16 +47,21 @@ public class BankAdminController {
     // 🏦 Bank Admin CRUD
     // ───────────────────────────────
     @PostMapping
-    public ResponseEntity<?> createAdmin(@RequestBody BankAdmin admin) {
+    public ResponseEntity<Map<String, String>> createAdmin(@RequestBody BankAdmin admin) {
+        Map<String, String> response = new HashMap<>();
         try {
-            BankAdmin createdAdmin = bankAdminService.createBankAdmin(admin);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdAdmin);
+            // Create Bank Admin and send email internally
+            bankAdminService.createBankAdmin(admin);
+
+            // Only return a success message, no email, username, or role
+            response.put("message", "Bank Admin registered successfully");
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
         } catch (RuntimeException ex) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+            response.put("error", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
         }
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<BankAdmin> getAdmin(@PathVariable Long id) {
@@ -276,6 +281,21 @@ public ResponseEntity<VendorPaymentDTO> updateVendorPaymentStatus(
 
     return ResponseEntity.ok(payment);
 }
+
+//───────────────────────────────
+//📋 Get All Concerns (Bank Admin)
+//───────────────────────────────
+@GetMapping("/concerns")
+public ResponseEntity<List<Concern>> getAllConcerns() {
+ return ResponseEntity.ok(bankAdminService.getAllConcerns());
+}
+
+@GetMapping("/employees/pending-verifications")
+public ResponseEntity<List<EmployeeDTO>> getPendingVerifications() {
+    List<EmployeeDTO> pendingEmployees = employeeService.getPendingVerifications();
+    return ResponseEntity.ok(pendingEmployees);
+}
+
 
 // DTO for request
 @Data

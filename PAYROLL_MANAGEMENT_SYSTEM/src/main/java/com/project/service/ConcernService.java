@@ -1,12 +1,16 @@
 package com.project.service;
 
+import com.project.dto.ConcernDTO;
 import com.project.entity.Concern;
+import com.project.entity.ConcernStatus;
+
 import java.util.List;
 
 public interface ConcernService {
-    Concern createConcern(Concern concern);
+    ConcernDTO createConcern(Concern concern);
     List<Concern> getConcernsByEmployee(Long employeeId);
+    List<Concern> getConcernsByOrganization(Long organizationId);
     List<Concern> getAllConcerns();
-    Concern updateConcernStatus(Long id, String status);
+    Concern updateConcernStatus(Long id, ConcernStatus status, String resolutionRemarks);
     void deleteConcern(Long id);
 }

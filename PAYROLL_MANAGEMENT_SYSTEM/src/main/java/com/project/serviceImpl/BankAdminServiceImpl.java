@@ -31,6 +31,7 @@ import com.project.repo.SalaryPaymentRepo;
 import com.project.repo.UserRepo;
 import com.project.repo.VendorPaymentRepo;
 import com.project.service.BankAdminService;
+import com.project.service.EmailService;
 import com.project.service.SalaryPaymentService;
 
 import lombok.RequiredArgsConstructor;
@@ -48,12 +49,12 @@ public class BankAdminServiceImpl implements BankAdminService {
     private final VendorPaymentRepo vendorPaymentRepo;
     private final ClientVendorRepo clientVendorRepo;
     private final SalaryPaymentService salaryPaymentService;
+    private final EmailService emailService; 
     private final PasswordEncoder passwordEncoder;
 
-    // ✅ Create new Bank Admin (only one allowed)
     @Override
     public BankAdmin createBankAdmin(BankAdmin admin) {
-        if (bankAdminRepo.count() >= 1) {
+        if (bankAdminRepo.count() >= 3) {
             throw new RuntimeException("A Bank Admin already exists. Only one Bank Admin is allowed.");
         }
 
@@ -63,7 +64,7 @@ public class BankAdminServiceImpl implements BankAdminService {
         if (admin.getPassword() == null || admin.getPassword().isBlank())
             throw new RuntimeException("Password is required for Bank Admin.");
 
-        // ✅ Generate username (split from email)
+        // Generate username
         String username;
         if (admin.getName() != null && !admin.getName().isBlank()) {
             username = admin.getName().contains("@")
@@ -73,34 +74,53 @@ public class BankAdminServiceImpl implements BankAdminService {
             username = admin.getEmail().split("@")[0];
         }
 
-        // ✅ Check duplicates
+        // Check duplicates
         if (userRepo.findByUsername(username).isPresent()) {
             throw new RuntimeException("A user with this username already exists: " + username);
         }
-
         if (userRepo.findByEmail(admin.getEmail()).isPresent()) {
             throw new RuntimeException("A user with this email already exists: " + admin.getEmail());
         }
 
-        // ✅ Link bank if provided
+        // Link bank if provided
         if (admin.getBank() != null && admin.getBank().getId() != null) {
             Bank bank = bankRepo.findById(admin.getBank().getId())
                     .orElseThrow(() -> new RuntimeException("Bank not found with ID: " + admin.getBank().getId()));
             admin.setBank(bank);
         }
 
-        // ✅ Create new User
+        // 1️⃣ Store plain password before encoding
+        String plainPassword = admin.getPassword();
+
+        // 2️⃣ Create user entity and encode password for DB
         User user = new User();
         user.setUsername(username);
         user.setEmail(admin.getEmail());
-        user.setPassword(passwordEncoder.encode(admin.getPassword()));
+        user.setPassword(passwordEncoder.encode(plainPassword)); // store hashed password
         user.setRole("ROLE_BANK_ADMIN");
         userRepo.save(user);
 
-        // ✅ Link and save BankAdmin
+        // 3️⃣ Link and save BankAdmin (with hashed password only)
         admin.setUser(user);
-        admin.setPassword(user.getPassword()); // store encoded password
-        return bankAdminRepo.save(admin);
+        admin.setPassword(user.getPassword()); // store hashed password
+        BankAdmin savedAdmin = bankAdminRepo.save(admin);
+
+        String emailBody = String.format(
+        	    "Dear %s,\r\n\r\n" +
+        	    "Your Bank Admin account has been created successfully.\r\n\r\n" +
+        	    "Login Credentials:\r\n" +
+        	    "Username: %s\r\n" +
+        	    "Password: %s\r\n\r\n" +
+        	    "Please change your password after first login.\r\n\r\n" +
+        	    "Regards,\r\nPayroll Management System",
+        	    savedAdmin.getName() != null ? savedAdmin.getName() : "Bank Admin",
+        	    username,
+        	    plainPassword
+        	);
+
+        emailService.sendEmail(savedAdmin.getEmail(), "Bank Admin Account Created", emailBody);
+
+        return savedAdmin;
     }
 
     // ✅ Get all Bank Admins
@@ -198,32 +218,6 @@ public class BankAdminServiceImpl implements BankAdminService {
         org.setVerifiedBy(admin);
         // Optional: save remarks if field exists
         return organizationRepo.save(org);
-    }
-
-    // ✅ Resolve Concern
-    @Override
-    public Concern resolveConcern(Long concernId, Long adminId, String resolutionRemarks) {
-        Concern concern = concernRepo.findById(concernId)
-                .orElseThrow(() -> new RuntimeException("Concern not found"));
-        BankAdmin admin = getBankAdminById(adminId);
-
-        concern.setStatus(ConcernStatus.RESOLVED);
-        concern.setHandledBy(admin);
-        concern.setResolutionRemarks(resolutionRemarks);
-        return concernRepo.save(concern);
-    }
-
-    // ✅ Reject Concern
-    @Override
-    public Concern rejectConcern(Long concernId, Long adminId, String remarks) {
-        Concern concern = concernRepo.findById(concernId)
-                .orElseThrow(() -> new RuntimeException("Concern not found"));
-        BankAdmin admin = getBankAdminById(adminId);
-
-        concern.setStatus(ConcernStatus.REJECTED);
-        concern.setHandledBy(admin);
-        concern.setResolutionRemarks(remarks);
-        return concernRepo.save(concern);
     }
 
     @Override
@@ -416,6 +410,44 @@ public class BankAdminServiceImpl implements BankAdminService {
                 .verifiedByAdminId(admin.getId())
                 .requestDate(payment.getRequestDate())
                 .build();
+    }
+    
+    @Override
+    public Concern resolveConcern(Long concernId, Long adminId, String remarks) {
+        Concern concern = concernRepo.findById(concernId)
+                .orElseThrow(() -> new RuntimeException("Concern not found"));
+
+        BankAdmin admin = bankAdminRepo.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("Bank admin not found"));
+
+        concern.setHandledBy(admin);
+        concern.setStatus(ConcernStatus.RESOLVED);
+        concern.setResolvedAt(LocalDateTime.now());
+        concern.setResolutionRemarks(remarks);
+
+        return concernRepo.save(concern);
+    }
+
+    @Override
+    public Concern rejectConcern(Long concernId, Long adminId, String remarks) {
+        Concern concern = concernRepo.findById(concernId)
+                .orElseThrow(() -> new RuntimeException("Concern not found"));
+
+        BankAdmin admin = bankAdminRepo.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("Bank admin not found"));
+
+        concern.setHandledBy(admin);
+        concern.setStatus(ConcernStatus.REJECTED);
+        concern.setResolvedAt(LocalDateTime.now());
+        concern.setResolutionRemarks(remarks);
+
+        return concernRepo.save(concern);
+    }
+
+
+    @Override
+    public List<Concern> getAllConcerns() {
+        return concernRepo.findAll();
     }
 
 }

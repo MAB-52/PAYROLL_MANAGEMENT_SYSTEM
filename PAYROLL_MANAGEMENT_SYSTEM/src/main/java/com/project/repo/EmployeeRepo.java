@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import com.project.entity.Employee;
+import com.project.entity.VerificationStatus;
 
 @Repository
 public interface EmployeeRepo extends JpaRepository<Employee, Long> {
@@ -16,4 +17,5 @@ public interface EmployeeRepo extends JpaRepository<Employee, Long> {
     Optional<Employee> findByUsername(String username);
     
     List<Employee> findByOrganizationId(Long organizationId);
+    List<Employee> findByVerificationStatus(VerificationStatus status);
 }

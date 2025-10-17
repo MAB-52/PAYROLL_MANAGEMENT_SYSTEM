@@ -17,5 +17,6 @@ public interface EmployeeService {
     void deleteEmployeeByManager(Long id, String managerUsername);
     EmployeeDTO approveEmployeeStatus(Long employeeId, String status, String remarks);
     String loginEmployee(String username, String password);
+    List<EmployeeDTO> getPendingVerifications();
 
 }

@@ -18,5 +18,9 @@ public interface EmployeeService {
     EmployeeDTO approveEmployeeStatus(Long employeeId, String status, String remarks);
     String loginEmployee(String username, String password);
     List<EmployeeDTO> getPendingVerifications();
+    
+    EmployeeDTO changePassword(String username, String oldPassword, String newPassword);
+    List<EmployeeDTO> getPendingVerifications(String adminUsername);
 
+    EmployeeDTO updateOwnProfile(String username, EmployeeDTO employeeDTO);
 }

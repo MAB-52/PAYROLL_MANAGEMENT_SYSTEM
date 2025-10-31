@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.project.entity.Employee;
@@ -18,4 +20,9 @@ public interface EmployeeRepo extends JpaRepository<Employee, Long> {
     
     List<Employee> findByOrganizationId(Long organizationId);
     List<Employee> findByVerificationStatus(VerificationStatus status);
+    
+    @Query("SELECT e FROM Employee e WHERE e.organization.bank.id = :bankId AND e.verificationStatus = :status")
+    List<Employee> findByBankAndVerificationStatus(@Param("bankId") Long bankId,
+                                                   @Param("status") VerificationStatus status);
+
 }

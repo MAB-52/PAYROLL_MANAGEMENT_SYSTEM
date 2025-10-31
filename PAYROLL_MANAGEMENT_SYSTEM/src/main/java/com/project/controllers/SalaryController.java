@@ -2,6 +2,8 @@ package com.project.controllers;
 
 import com.project.entity.SalaryStructure;
 import com.project.service.SalaryService;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +18,7 @@ public class SalaryController {
     private final SalaryService salaryService;
 
     @PostMapping
-    public ResponseEntity<SalaryStructure> createSalary(@RequestBody SalaryStructure salaryStructure) {
+    public ResponseEntity<SalaryStructure> createSalary(@Valid	@RequestBody SalaryStructure salaryStructure) {
         return ResponseEntity.ok(salaryService.createSalary(salaryStructure));
     }
 
@@ -32,7 +34,7 @@ public class SalaryController {
 
     @PutMapping("/{id}")
     public ResponseEntity<SalaryStructure> updateSalary(@PathVariable Long id,
-                                                        @RequestBody SalaryStructure updatedSalary) {
+    		@Valid @RequestBody SalaryStructure updatedSalary) {
         return ResponseEntity.ok(salaryService.updateSalary(id, updatedSalary));
     }
 

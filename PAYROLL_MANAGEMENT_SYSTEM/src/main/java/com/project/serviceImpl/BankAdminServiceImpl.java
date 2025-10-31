@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.project.dto.OrganizationApprovalRequest;
 import com.project.dto.OrganizationApprovalResponse;
+import com.project.dto.SalaryApprovalRequest;
 import com.project.dto.SalaryPaymentDTO;
 import com.project.dto.VendorPaymentDTO;
 import com.project.entity.Bank;
@@ -16,6 +17,7 @@ import com.project.entity.BankAdmin;
 import com.project.entity.ClientVendor;
 import com.project.entity.Concern;
 import com.project.entity.ConcernStatus;
+import com.project.entity.Employee;
 import com.project.entity.Organization;
 import com.project.entity.SalaryPayment;
 import com.project.entity.SalaryStatus;
@@ -54,7 +56,7 @@ public class BankAdminServiceImpl implements BankAdminService {
 
     @Override
     public BankAdmin createBankAdmin(BankAdmin admin) {
-        if (bankAdminRepo.count() >= 3) {
+        if (bankAdminRepo.count() >= 1) {
             throw new RuntimeException("A Bank Admin already exists. Only one Bank Admin is allowed.");
         }
 
@@ -111,7 +113,7 @@ public class BankAdminServiceImpl implements BankAdminService {
         	    "Login Credentials:\r\n" +
         	    "Username: %s\r\n" +
         	    "Password: %s\r\n\r\n" +
-        	    "Please change your password after first login.\r\n\r\n" +
+        	    ".\r\n\r\n" +
         	    "Regards,\r\nPayroll Management System",
         	    savedAdmin.getName() != null ? savedAdmin.getName() : "Bank Admin",
         	    username,
@@ -234,6 +236,19 @@ public class BankAdminServiceImpl implements BankAdminService {
         // ❌ Rejection
         if (request.getStatus() == VerificationStatus.REJECTED) {
             organizationRepo.save(org);
+
+            // Send rejection email
+            String rejectBody = String.format(
+                    "Dear %s,\n\n" +
+                            "Your organization '%s' has been rejected.\n" +
+                            "Remarks: %s\n\n" +
+                            "Regards,\nPayroll Management System",
+                    org.getOrgName(),
+                    org.getOrgName(),
+                    request.getRemarks() != null ? request.getRemarks() : "No remarks provided"
+            );
+            emailService.sendEmail(org.getContactEmail(), "Organization Verification Status", rejectBody);
+
             return new OrganizationApprovalResponse(
                     "Organization '" + org.getOrgName() + "' has been rejected. Remarks: " + request.getRemarks(),
                     null,
@@ -270,6 +285,25 @@ public class BankAdminServiceImpl implements BankAdminService {
             userRepo.save(user);
             organizationRepo.save(org);
 
+            // ✅ Send approval email with username, email, and password
+            String approveBody = String.format(
+                    "Dear %s,\n\n" +
+                            "Your organization '%s' has been approved.\n\n" +
+                            "Login credentials for your account:\n" +
+                            "Username: %s\n" +
+                            "Email: %s\n" +
+                            "Password: %s\n\n" +
+                            ".\n\n" +
+                            "Regards,\nPayroll Management System",
+                    org.getOrgName(),
+                    org.getOrgName(),
+                    username,
+                    org.getContactEmail(),
+                    password
+            );
+
+            emailService.sendEmail(org.getContactEmail(), "Organization Approved & Account Created", approveBody);
+
             return new OrganizationApprovalResponse(
                     "Organization '" + org.getOrgName() + "' approved successfully. Login created.",
                     username,
@@ -287,11 +321,6 @@ public class BankAdminServiceImpl implements BankAdminService {
     }
 
     @Override
-    public SalaryPaymentDTO approveSalaryPayment(Long paymentId, Long adminId) {
-        return salaryPaymentService.approveSalaryPayment(paymentId, adminId);
-    }
-
-    @Override
     public SalaryPaymentDTO rejectSalaryPayment(Long paymentId, Long adminId, String remarks) {
         return salaryPaymentService.rejectSalaryPayment(paymentId, adminId, remarks);
     }
@@ -304,16 +333,55 @@ public class BankAdminServiceImpl implements BankAdminService {
             throw new RuntimeException("No salary payments found for organization " + organizationId + " and month " + month);
         }
 
+        BankAdmin admin = bankAdminRepo.findById(adminId)
+                .orElseThrow(() -> new RuntimeException("Bank Admin not found"));
+
         List<SalaryPaymentDTO> result = payments.stream().map(payment -> {
             if (approved) {
                 payment.setStatus(SalaryStatus.COMPLETED);
             } else {
                 payment.setStatus(SalaryStatus.FAILED);
             }
-            payment.setVerifiedBy(bankAdminRepo.findById(adminId)
-                    .orElseThrow(() -> new RuntimeException("Bank Admin not found")));
+
+            payment.setVerifiedBy(admin);
             payment.setRemarks(remarks);
             salaryPaymentRepo.save(payment);
+
+            // ✅ Send email if approved
+            if (approved && payment.getEmployee() != null && payment.getEmployee().getEmail() != null
+                    && payment.getEmployee().getSalaryStructure() != null) {
+
+                var employee = payment.getEmployee();
+                var salary = employee.getSalaryStructure();
+
+                StringBuilder salaryDetails = new StringBuilder();
+                salaryDetails.append("Basic: ").append(salary.getBasic()).append("\n")
+                             .append("HRA: ").append(salary.getHra()).append("\n")
+                             .append("DA: ").append(salary.getDa()).append("\n")
+                             .append("PF: ").append(salary.getPf()).append("\n")
+                             .append("Allowances: ").append(salary.getAllowances()).append("\n")
+                             .append("Net Salary: ").append(salary.getNetSalary()).append("\n");
+
+                String emailBody = String.format(
+                        "Dear %s,\n\n" +
+                        "Your salary for %s has been %s by the Bank Admin.\n\n" +
+                        "Salary Details:\n%s\n" +
+                        "Remarks: %s\n" +
+                        "Payment Date: %s\n" +
+                        "Status: %s\n\n" +
+                        "Regards,\nPayroll Management System",
+                        employee.getFullName(),
+                        payment.getSalaryMonth(),
+                        approved ? "approved" : "rejected",
+                        salaryDetails.toString(),
+                        remarks != null ? remarks : "None",
+                        payment.getPaymentDate(),
+                        payment.getStatus().name()
+                );
+
+                emailService.sendEmail(employee.getEmail(), "Salary Payment " + (approved ? "Approved" : "Rejected"), emailBody);
+            }
+
             return SalaryPaymentDTO.builder()
                     .id(payment.getId())
                     .amount(payment.getAmount())
@@ -373,11 +441,40 @@ public class BankAdminServiceImpl implements BankAdminService {
         payment.setVerifiedBy(admin);
         vendorPaymentRepo.save(payment);
 
+        // ✅ Send payment email to vendor
+        ClientVendor vendor = payment.getVendor();
+        Organization org = payment.getOrganization();
+
+        if (vendor != null && vendor.getEmail() != null) {
+            String emailBody = String.format(
+                    "Dear %s,\n\n" +
+                    "Your payment from organization '%s' has been approved by the Bank Admin.\n\n" +
+                    "Payment Details:\n" +
+                    "Vendor Name: %s\n" +
+                    "Organization: %s\n" +
+                    "Amount: %.2f\n" +
+                    "Status: %s\n" +
+                    "Payment Date: %s\n\n" +
+                    "Remarks: %s\n\n" +
+                    "Regards,\nPayroll Management System",
+                    vendor.getName(),
+                    org.getOrgName(),
+                    vendor.getName(),
+                    org.getOrgName(),
+                    payment.getAmount(),
+                    payment.getStatus().name(),
+                    payment.getRequestDate(),
+                    payment.getRemarks() != null ? payment.getRemarks() : "None"
+            );
+
+            emailService.sendEmail(vendor.getEmail(), "Vendor Payment Approved", emailBody);
+        }
+
         return VendorPaymentDTO.builder()
                 .id(payment.getId())
-                .vendorId(payment.getVendor().getCvId())
-                .vendorName(payment.getVendor().getName())
-                .organizationId(payment.getOrganization().getId())
+                .vendorId(vendor.getCvId())
+                .vendorName(vendor.getName())
+                .organizationId(org.getId())
                 .amount(payment.getAmount())
                 .status(payment.getStatus().name())
                 .remarks(payment.getRemarks())
@@ -385,6 +482,7 @@ public class BankAdminServiceImpl implements BankAdminService {
                 .requestDate(payment.getRequestDate())
                 .build();
     }
+
 
     @Override
     public VendorPaymentDTO rejectVendorPayment(Long paymentId, Long adminId, String remarks) {
@@ -449,5 +547,32 @@ public class BankAdminServiceImpl implements BankAdminService {
     public List<Concern> getAllConcerns() {
         return concernRepo.findAll();
     }
-
+    
+    public SalaryPaymentDTO approveSalaryPayment(Long paymentId, Long adminId) 
+    { 
+    	SalaryPaymentDTO paymentDTO = salaryPaymentService.approveSalaryPayment(paymentId, adminId);
+    	// Fetch full SalaryPayment entity to access employee and salary structure 
+    	SalaryPayment payment = salaryPaymentRepo.findById(paymentId) 
+    			.orElseThrow(() -> new RuntimeException("Payment not found"));
+    	Employee employee = payment.getEmployee(); 
+    	if (employee != null && employee.getEmail() != null && employee.getSalaryStructure() != null)
+    	{ 
+    		StringBuilder salaryDetails = new StringBuilder(); 
+    		salaryDetails.append("Basic: ")
+    		.append(employee.getSalaryStructure()
+    				.getBasic()).append("\n") 
+    		.append("HRA: ")
+    		.append(employee.getSalaryStructure().getHra()).append("\n") .append("DA: ")
+    		.append(employee.getSalaryStructure().getDa()).append("\n") .append("PF: ")
+    		.append(employee.getSalaryStructure().getPf()).append("\n") .append("Allowances: ")
+    		.append(employee.getSalaryStructure().getAllowances()).append("\n") .append("Net Salary: ")
+    		.append(employee.getSalaryStructure().getNetSalary()).append("\n"); 
+    		String emailBody = String.format( "Dear %s,\n\n" + "Your salary for %s has been approved by the Bank Admin.\n\n" 
+    		+ "Salary Details:\n%s\n" + "Payment Date: %s\n" + "Status: %s\n\n" 
+    		+ "Regards,\nPayroll Management System", employee.getFullName(), payment.getSalaryMonth(), salaryDetails.toString(),
+    		payment.getPaymentDate(), payment.getStatus().name() ); 
+    		emailService.sendEmail(employee.getEmail(), "Salary Payment Approved", emailBody); 
+    		} return paymentDTO;
+    	}
+    
 }

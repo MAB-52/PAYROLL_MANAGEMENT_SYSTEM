@@ -2,6 +2,8 @@ package com.project.controllers;
 
 import com.project.entity.Bank;
 import com.project.repo.BankRepo;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +18,7 @@ public class BankController {
     private final BankRepo bankRepo;
 
     @PostMapping
-    public ResponseEntity<Bank> createBank(@RequestBody Bank bank) {
+    public ResponseEntity<Bank> createBank(@Valid @RequestBody Bank bank) {
         return ResponseEntity.ok(bankRepo.save(bank));
     }
 

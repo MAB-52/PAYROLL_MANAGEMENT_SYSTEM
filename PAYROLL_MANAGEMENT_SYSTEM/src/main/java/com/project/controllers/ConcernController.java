@@ -18,6 +18,7 @@ import com.project.dto.ConcernStatusUpdateRequest;
 import com.project.entity.Concern;
 import com.project.service.ConcernService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -29,7 +30,7 @@ public class ConcernController {
 
     // Create a new concern and return DTO
     @PostMapping
-    public ResponseEntity<ConcernDTO> createConcern(@RequestBody Concern concern) {
+    public ResponseEntity<ConcernDTO> createConcern(@Valid @RequestBody Concern concern) {
         ConcernDTO dto = concernService.createConcern(concern);
         return ResponseEntity.ok(dto);
     }
@@ -57,8 +58,8 @@ public class ConcernController {
     // Update concern status and return DTO
     @PutMapping("/{id}/status")
     public ResponseEntity<ConcernDTO> updateConcernStatus(
-            @PathVariable Long id,
-            @RequestBody ConcernStatusUpdateRequest request) {
+    			@PathVariable Long id,
+    		@Valid	@RequestBody ConcernStatusUpdateRequest request) {
 
         Concern concern = concernService.updateConcernStatus(
                 id,

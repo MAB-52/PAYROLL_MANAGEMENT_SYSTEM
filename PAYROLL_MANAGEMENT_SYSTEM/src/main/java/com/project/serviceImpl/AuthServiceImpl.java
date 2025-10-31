@@ -7,6 +7,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.project.dto.LoginRequestDTO;
 import com.project.dto.LoginResponseDTO;
@@ -27,6 +28,8 @@ import com.project.repo.UserRepo;
 import com.project.security.JwtUtil;
 import com.project.service.AuthService;
 import com.project.service.BankAdminService;
+import com.project.service.CloudinaryService;
+import com.project.service.EmailService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -39,8 +42,10 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepo userRepo;
     private final EmployeeRepo employeeRepo;
+    private final EmailService emailService;
     private final JwtUtil jwtUtil;
     private final BankAdminService bankAdminService;
+    private final CloudinaryService cloudinaryService;
     private final OrganizationRepo organizationRepo;
     private final BankRepo bankRepo;
     private final EntityMapper entityMapper;
@@ -133,31 +138,51 @@ public class AuthServiceImpl implements AuthService {
     // ==================================
     // 🔹 REGISTER ORGANIZATION (Manager)
     // ==================================
-    @Override
-    public RegisterResponseDTO registerOrganization(RegisterRequestDTO request) {
-        Bank bank = bankRepo.findById(request.getBankId())
-                .orElseThrow(() -> new RuntimeException("Bank not found with ID: " + request.getBankId()));
+ @Override
+ public RegisterResponseDTO registerOrganization(RegisterRequestDTO request) {
+     Bank bank = bankRepo.findById(request.getBankId())
+             .orElseThrow(() -> new RuntimeException("Bank not found with ID: " + request.getBankId()));
 
-        OrganizationDTO orgDto = OrganizationDTO.builder()
-                .orgName(request.getOrgName())
-                .registrationNumber(request.getRegistrationNumber())
-                .email(request.getEmail())
-                .contactNumber(request.getContactNumber())
-                .address(request.getAddress())
-                .documentUrl(request.getDocumentUrl())
-                .bankId(request.getBankId())
-                .build();
+     OrganizationDTO orgDto = OrganizationDTO.builder()
+             .orgName(request.getOrgName())
+             .registrationNumber(request.getRegistrationNumber())
+             .email(request.getEmail())
+             .contactNumber(request.getContactNumber())
+             .address(request.getAddress())
+             .documentUrl(request.getDocumentUrl())
+             .bankId(request.getBankId())
+             .build();
 
-        Organization organization = entityMapper.toOrganizationEntity(orgDto, bank);
-        organization.setVerificationStatus(VerificationStatus.PENDING);
+     Organization organization = entityMapper.toOrganizationEntity(orgDto, bank);
+     organization.setVerificationStatus(VerificationStatus.PENDING);
 
-        Organization savedOrg = organizationRepo.save(organization);
+     Organization savedOrg = organizationRepo.save(organization);
 
-        return RegisterResponseDTO.builder()
-                .message("Organization registered successfully")
-                .role("ROLE_MANAGER")
-                .username(savedOrg.getContactEmail())
-                .email(savedOrg.getContactEmail())
-                .build();
-    }
+     // ✅ Send email notification
+     String emailBody = String.format(
+         "Dear %s,\n\n" +
+         "Your organization '%s' has been registered successfully.\n" +
+         "Current status: %s\n\n" +
+         "Regards,\nPayroll Management System",
+         savedOrg.getOrgName(),
+         savedOrg.getOrgName(),
+         savedOrg.getVerificationStatus().name()
+     );
+
+     // Inject EmailService and send email
+     emailService.sendEmail(savedOrg.getContactEmail(), "Organization Registration Status", emailBody);
+
+     return RegisterResponseDTO.builder()
+             .message("Organization registered successfully")
+             .role("ROLE_MANAGER")
+             .username(savedOrg.getContactEmail())
+             .email(savedOrg.getContactEmail())
+             .build();
+ }
+ 
+ public String uploadOrganizationDocument(MultipartFile file) {
+	    return cloudinaryService.uploadFile(file, "organization_docs");
+	}
+
+
 }

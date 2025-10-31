@@ -1,6 +1,7 @@
 package com.project.service;
 
 import java.util.List;
+
 import com.project.dto.OrganizationDTO;
 import com.project.entity.Organization;
 import com.project.entity.VerificationStatus;
@@ -22,4 +23,6 @@ public interface OrganizationService {
     Organization updateVerificationStatus(Long id, VerificationStatus status);
 
     Organization updateDocument(Long id, String documentUrl);
+    
+    List<Organization> getOrganizationsByStatus(VerificationStatus status);
 }

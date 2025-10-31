@@ -23,4 +23,5 @@ public interface OrganizationRepo extends JpaRepository<Organization, Long> {
 
     // Check if organization exists by registration number or name
     boolean existsByOrgName(String orgName);
+    
 }

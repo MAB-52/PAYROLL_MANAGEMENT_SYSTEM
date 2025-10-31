@@ -1,18 +1,22 @@
 package com.project.serviceImpl;
 
-import com.project.entity.*;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.project.dto.OrganizationDTO;
+import com.project.entity.Bank;
+import com.project.entity.Organization;
 import com.project.entity.VerificationStatus;
 import com.project.exception.ResourceNotFoundException;
 import com.project.mapper.EntityMapper;
 import com.project.repo.BankRepo;
 import com.project.repo.OrganizationRepo;
+import com.project.service.EmailService;
 import com.project.service.OrganizationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import jakarta.transaction.Transactional;
 
-import java.util.List;
+import jakarta.transaction.Transactional;
 
 @Service
 @Transactional
@@ -20,6 +24,9 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Autowired
     private OrganizationRepo organizationRepo;
+    
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private BankRepo bankRepo;
@@ -34,7 +41,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public Organization createOrganization(Organization organization) {
         organization.setVerificationStatus(VerificationStatus.PENDING);
 
-        // ✅ Validate and set bank reference properly
+        // Validate and set bank reference properly
         if (organization.getBank() == null || organization.getBank().getId() == null) {
             throw new RuntimeException("Bank reference is required");
         }
@@ -44,12 +51,32 @@ public class OrganizationServiceImpl implements OrganizationService {
 
         organization.setBank(bank);
 
-        // ✅ Validation for email
+        // Validation for email
         if (organization.getContactEmail() == null || organization.getContactEmail().trim().isEmpty()) {
             throw new RuntimeException("Contact email is required");
         }
 
-        return organizationRepo.save(organization);
+        // Save organization
+        Organization savedOrg = organizationRepo.save(organization);
+
+        // Send email notification
+        String emailBody = String.format(
+            "Dear %s,\n\n" +
+            "Your organization '%s' has been registered successfully.\n" +
+            "Current status: %s\n\n" +
+            "Regards,\nPayroll Management System",
+            savedOrg.getOrgName(),
+            savedOrg.getOrgName(),
+            savedOrg.getVerificationStatus().name()
+        );
+
+        emailService.sendEmail(savedOrg.getContactEmail(), "Organization Registration Status", emailBody);
+
+        return savedOrg; // ✅ return savedOrg only once
+    }
+    
+    public List<Organization> getOrganizationsByStatus(VerificationStatus status) {
+        return organizationRepo.findByVerificationStatus(status);
     }
 
     // =============================
@@ -110,9 +137,27 @@ public class OrganizationServiceImpl implements OrganizationService {
     
     @Override
     public Organization verifyOrganization(Long organizationId, Long bankAdminId, VerificationStatus status) {
+        // ✅ Fetch the organization
         Organization org = getOrganizationById(organizationId);
+
+        // ✅ Update verification status
         org.setVerificationStatus(status);
-        return organizationRepo.save(org);
+        Organization updatedOrg = organizationRepo.save(org);
+
+        // ✅ Send email notification to the organization
+        String emailBody = String.format(
+            "Dear %s,\n\n" +
+            "Your organization '%s' verification status has been updated.\n" +
+            "Current status: %s\n\n" +
+            "Regards,\nPayroll Management System",
+            updatedOrg.getOrgName(),
+            updatedOrg.getOrgName(),
+            updatedOrg.getVerificationStatus().name()
+        );
+
+        emailService.sendEmail(updatedOrg.getContactEmail(), "Organization Verification Status Update", emailBody);
+
+        return updatedOrg;
     }
 
     @Override

@@ -70,16 +70,16 @@ public class EntityMapper {
                         : null)
                 .build();
     }
-
+    
     public Employee toEmployeeEntity(EmployeeDTO dto, Organization organization) {
         if (dto == null) return null;
 
-        return Employee.builder()
+        Employee employee = Employee.builder()
                 .id(dto.getId())
                 .fullName(dto.getFullName())
                 .email(dto.getEmail())
-                .username(dto.getUsername())            
-                .password(dto.getPassword())            
+                .username(dto.getUsername())
+                .password(dto.getPassword())
                 .department(dto.getDepartment())
                 .designation(dto.getDesignation())
                 .accountNumber(dto.getAccountNumber())
@@ -88,10 +88,18 @@ public class EntityMapper {
                 .documentUrl(dto.getDocumentUrl())
                 .verificationStatus(dto.getVerificationStatus() != null
                         ? VerificationStatus.valueOf(dto.getVerificationStatus())
-                        : VerificationStatus.PENDING)   // ✅ default to PENDING
-                .salaryStructure(toSalaryEntity(dto.getSalaryStructure()))
+                        : VerificationStatus.PENDING)
                 .organization(organization)
                 .build();
+
+        // ✅ Link salary structure both ways
+        if (dto.getSalaryStructure() != null) {
+            SalaryStructure salary = toSalaryEntity(dto.getSalaryStructure());
+            salary.setEmployee(employee); // 🔥 link back to employee
+            employee.setSalaryStructure(salary);
+        }
+
+        return employee;
     }
 
     public List<EmployeeDTO> toEmployeeDTOList(List<Employee> employees) {

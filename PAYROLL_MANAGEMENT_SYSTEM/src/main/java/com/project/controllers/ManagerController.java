@@ -19,6 +19,7 @@ import com.project.service.SalaryPaymentService;
 import com.project.service.VendorPaymentService;
 import com.project.serviceImpl.ManagerValidationService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -34,7 +35,7 @@ public class ManagerController {
     @PostMapping("/organizations/{orgId}/salary/request")
     public ResponseEntity<List<SalaryPaymentDTO>> createSalaryRequest(
             @PathVariable Long orgId,
-            @RequestBody SalaryPayment request,
+            @Valid @RequestBody SalaryPayment request,
             Principal principal
     ) {
         String username = principal.getName(); // From JWT
@@ -52,7 +53,7 @@ public class ManagerController {
     @PostMapping("/organizations/{orgId}/vendor-payment/request")
     public ResponseEntity<VendorPaymentDTO> createVendorPaymentRequest(
             @PathVariable Long orgId,
-            @RequestBody VendorPayment paymentRequest,
+            @Valid @RequestBody VendorPayment paymentRequest,
             Principal principal
     ) {
         String username = principal.getName(); // From JWT

@@ -20,6 +20,8 @@ public class EmployeeDTO {
     private String password;
     private String department;
     private String designation;
+    
+    private String plainPassword; // optional, only for sending in email
 
     private String accountNumber;
     private String ifscCode;
